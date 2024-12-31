@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Tap Interaction</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      height: 100vh;
+    }
+    #message {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 24px;
+      font-family: Arial, sans-serif;
+      z-index: 1;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="message">You tapped the screen!</div>
+
+  <a-scene embedded>
+    <!-- Camera setup for AR experience -->
+    <a-entity id="camera" camera position="0 1.6 0" look-controls="enabled: true">
+      <!-- Text that moves along with the camera -->
+      <a-text 
+        value="Happy New Year 2025, Larissa! Thank you for being a source of strength and support this past year. 
+                   Wishing you a year filled with happiness, success, and wonderful moments. 
+                   May all your dreams and goals come true!" 
+        position="0 -0.5 -1" 
+        scale="1.5 1.5 1.5" 
+        color="#FFF" 
+        id="tapMessage">
+      </a-text>
+    </a-entity>
+
+    <!-- Invisible cursor for detecting touch events -->
+    <a-entity cursor="fuse: false; maxDistance: 10" position="0 1.5 -3"></a-entity>
+  </a-scene>
+
+  <script>
+    // Function to spawn the message at the tap position and focus camera on it
+    function spawnMessage(event) {
+      const scene = document.querySelector('a-scene');
+      const messageDiv = document.getElementById("message");
+
+      // Show HTML message for a short time (3 seconds)
+      messageDiv.style.display = "block"; // Show message on screen
+      setTimeout(() => {
+        messageDiv.style.display = "none"; // Hide HTML message after 3 seconds
+      }, 3000);
+    }
+
+    // Add event listener to handle user taps (in 3D space)
+    document.querySelector('a-scene').addEventListener('click', spawnMessage);
+  </script>
+</body>
+</html>
