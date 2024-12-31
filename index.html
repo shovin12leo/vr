@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3D Tap Interaction</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.2.0/aframe-ar.js"></script>
   <style>
     body {
       margin: 0;
@@ -38,21 +39,25 @@
   </style>
 </head>
 <body>
-  <h1>1. Click the VR button on the right side.<br>
-      2. Allow camera permissions.<br>
-      3. Look around with the camera.</h1>
+  <h1>1. Allow camera permissions.<br>
+      2. Tap on the screen to interact with AR objects.<br>
+      3. Move your phone to explore the AR experience.</h1>
 
   <div id="message">You tapped the screen!</div>
-  <div id="vr-button">Enter VR Mode</div>
+  <div id="vr-button">Enter AR Mode</div>
 
-  <a-scene embedded>
+  <a-scene embedded arjs>
     <!-- Camera setup for AR experience -->
-    <a-entity id="camera" camera position="0 1.6 0" look-controls="enabled: false"></a-entity>
+    <a-entity id="camera" camera position="0 1.6 0" look-controls="enabled: true"></a-entity>
 
-    <!-- A simple text for tap prompt -->
-    <a-text value="Happy New Year 2025, Larissa! Thank you for being a source of strength and support this past year. 
+    <!-- AR Marker to place the text -->
+    <a-marker preset="hiro">
+      <a-text value="Happy New Year 2025, Larissa! Thank you for being a source of strength and support this past year. 
                    Wishing you a year filled with happiness, success, and wonderful moments. 
-                   May all your dreams and goals come true!" position="0 2 -5" scale="2 2 2" color="#FFF" id="tapMessage"></a-text>
+                   May all your dreams and goals come true!" 
+                   position="0 0.5 0" scale="2 2 2" color="#FFF" id="tapMessage">
+      </a-text>
+    </a-marker>
 
     <!-- Invisible cursor for detecting touch events -->
     <a-entity cursor="fuse: false; maxDistance: 10" position="0 1.5 -3"></a-entity>
@@ -97,24 +102,16 @@
     // Add event listener to handle user taps (in 3D space)
     document.querySelector('a-scene').addEventListener('click', spawnMessage);
 
-    // Show VR button and allow VR mode to be entered
+    // Show VR button and allow AR mode to be entered
     const vrButton = document.getElementById("vr-button");
     vrButton.style.display = "block";
 
     vrButton.addEventListener("click", function() {
+      // Trigger AR mode activation
       const scene = document.querySelector("a-scene");
-      scene.enterVR(); // Enter VR mode
-      document.getElementById("camera").setAttribute("look-controls", "enabled: true"); // Enable looking around
-      vrButton.style.display = "none"; // Hide VR button once clicked
+      scene.enterAR(); // Enter AR mode (mobile camera)
 
-      // Trigger fullscreen mode
-      if (scene.requestFullscreen) {
-        scene.requestFullscreen();
-      } else if (scene.webkitRequestFullscreen) { // Safari
-        scene.webkitRequestFullscreen();
-      } else if (scene.msRequestFullscreen) { // IE/Edge
-        scene.msRequestFullscreen();
-      }
+      vrButton.style.display = "none"; // Hide VR button once clicked
     });
   </script>
 </body>
