@@ -22,26 +22,37 @@
       z-index: 1;
       display: none;
     }
+    #vr-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 2;
+    }
   </style>
 </head>
 <body>
+  <h1>1. Click the VR button on the right side.<br>
+      2. Allow camera permissions.<br>
+      3. Look around with the camera.</h1>
 
   <div id="message">You tapped the screen!</div>
+  <div id="vr-button">Enter VR Mode</div>
 
   <a-scene embedded>
     <!-- Camera setup for AR experience -->
-    <a-entity id="camera" camera position="0 1.6 0" look-controls="enabled: true">
-      <!-- Text that moves along with the camera -->
-      <a-text 
-        value="Happy New Year 2025, Larissa! Thank you for being a source of strength and support this past year. 
+    <a-entity id="camera" camera position="0 1.6 0" look-controls="enabled: false"></a-entity>
+
+    <!-- A simple text for tap prompt -->
+    <a-text value="Happy New Year 2025, Larissa! Thank you for being a source of strength and support this past year. 
                    Wishing you a year filled with happiness, success, and wonderful moments. 
-                   May all your dreams and goals come true!" 
-        position="0 -0.5 -1" 
-        scale="1.5 1.5 1.5" 
-        color="#FFF" 
-        id="tapMessage">
-      </a-text>
-    </a-entity>
+                   May all your dreams and goals come true!" position="0 2 -5" scale="2 2 2" color="#FFF" id="tapMessage"></a-text>
 
     <!-- Invisible cursor for detecting touch events -->
     <a-entity cursor="fuse: false; maxDistance: 10" position="0 1.5 -3"></a-entity>
@@ -51,17 +62,60 @@
     // Function to spawn the message at the tap position and focus camera on it
     function spawnMessage(event) {
       const scene = document.querySelector('a-scene');
+      const cameraEl = document.getElementById('camera');
       const messageDiv = document.getElementById("message");
 
-      // Show HTML message for a short time (3 seconds)
-      messageDiv.style.display = "block"; // Show message on screen
-      setTimeout(() => {
-        messageDiv.style.display = "none"; // Hide HTML message after 3 seconds
-      }, 3000);
+      // Get the intersection point where the tap occurred
+      const intersection = event.detail.intersection;
+
+      if (intersection) {
+        const tapPosition = intersection.point; // 3D coordinates of the tap
+
+        // Create the 3D message entity at the tap position
+        const message = document.createElement('a-text');
+        message.setAttribute('value', 'You tapped here!');
+        message.setAttribute('position', `${tapPosition.x} ${tapPosition.y + 1} ${tapPosition.z}`); // Position it 1 unit above the tap
+        message.setAttribute('color', 'red');
+        message.setAttribute('scale', '2 2 2');
+        scene.appendChild(message);
+
+        // Move the camera to focus on the message
+        cameraEl.setAttribute('position', {
+          x: tapPosition.x,
+          y: tapPosition.y + 1.6, // Adjust camera height
+          z: tapPosition.z + 2  // Move the camera a bit away from the message
+        });
+
+        // Show HTML message for a short time (3 seconds)
+        messageDiv.style.display = "block"; // Show message on screen
+        setTimeout(() => {
+          messageDiv.style.display = "none"; // Hide HTML message after 3 seconds
+        }, 3000);
+      }
     }
 
     // Add event listener to handle user taps (in 3D space)
     document.querySelector('a-scene').addEventListener('click', spawnMessage);
+
+    // Show VR button and allow VR mode to be entered
+    const vrButton = document.getElementById("vr-button");
+    vrButton.style.display = "block";
+
+    vrButton.addEventListener("click", function() {
+      const scene = document.querySelector("a-scene");
+      scene.enterVR(); // Enter VR mode
+      document.getElementById("camera").setAttribute("look-controls", "enabled: true"); // Enable looking around
+      vrButton.style.display = "none"; // Hide VR button once clicked
+
+      // Trigger fullscreen mode
+      if (scene.requestFullscreen) {
+        scene.requestFullscreen();
+      } else if (scene.webkitRequestFullscreen) { // Safari
+        scene.webkitRequestFullscreen();
+      } else if (scene.msRequestFullscreen) { // IE/Edge
+        scene.msRequestFullscreen();
+      }
+    });
   </script>
 </body>
 </html>
